@@ -52,7 +52,7 @@ class AccessToken(model.Model):
 
 class Align(enum.Enum):
     """
-    The appropriate horizontal text alignment the values of this field shoud be displayed in. Valid values are: "left", "right".
+    The appropriate horizontal text alignment the values of this field should be displayed in. Valid values are: "left", "right".
 
     """
 
@@ -2970,7 +2970,7 @@ class LookmlModelExploreError(model.Model):
 class LookmlModelExploreField(model.Model):
     """
     Attributes:
-        align: The appropriate horizontal text alignment the values of this field shoud be displayed in. Valid values are: "left", "right".
+        align: The appropriate horizontal text alignment the values of this field should be displayed in. Valid values are: "left", "right".
         can_filter: Whether it's possible to filter on this field.
         category: Field category Valid values are: "parameter", "filter", "measure", "dimension".
         default_filter_value: The default value that this field uses when filtering. Null if there is no default value.
@@ -3843,7 +3843,6 @@ class Project(model.Model):
         unset_deploy_secret: (Write-Only) When true, unsets the deploy secret to allow unauthenticated access to the webhook deploy endpoint.
         pull_request_mode: The git pull request policy for this project. Valid values are: "off", "links", "recommended", "required".
         validation_required: Validation policy: If true, the project must pass validation checks before project changes can be committed to the git repository
-        folders_enabled: If true, folders are enabled for this project
         git_release_mgmt_enabled: If true, advanced git release management is enabled for this project
         allow_warnings: Validation policy: If true, the project can be committed with warnings when `validation_required` is true. (`allow_warnings` does nothing if `validation_required` is false).
         is_example: If true the project is an example project and cannot be modified
@@ -3867,7 +3866,6 @@ class Project(model.Model):
     unset_deploy_secret: Optional[bool] = None
     pull_request_mode: Optional["PullRequestMode"] = None
     validation_required: Optional[bool] = None
-    folders_enabled: Optional[bool] = None
     git_release_mgmt_enabled: Optional[bool] = None
     allow_warnings: Optional[bool] = None
     is_example: Optional[bool] = None
@@ -7051,7 +7049,6 @@ can, id, uses_git, is_example
         unset_deploy_secret: (Write-Only) When true, unsets the deploy secret to allow unauthenticated access to the webhook deploy endpoint.
         pull_request_mode: The git pull request policy for this project. Valid values are: "off", "links", "recommended", "required".
         validation_required: Validation policy: If true, the project must pass validation checks before project changes can be committed to the git repository
-        folders_enabled: If true, folders are enabled for this project
         git_release_mgmt_enabled: If true, advanced git release management is enabled for this project
         allow_warnings: Validation policy: If true, the project can be committed with warnings when `validation_required` is true. (`allow_warnings` does nothing if `validation_required` is false).
     """
@@ -7071,7 +7068,6 @@ can, id, uses_git, is_example
     unset_deploy_secret: Optional[bool] = None
     pull_request_mode: Optional["PullRequestMode"] = None
     validation_required: Optional[bool] = None
-    folders_enabled: Optional[bool] = None
     git_release_mgmt_enabled: Optional[bool] = None
     allow_warnings: Optional[bool] = None
 
@@ -7093,7 +7089,6 @@ can, id, uses_git, is_example
         unset_deploy_secret: Optional[bool] = None,
         pull_request_mode: Optional["PullRequestMode"] = None,
         validation_required: Optional[bool] = None,
-        folders_enabled: Optional[bool] = None,
         git_release_mgmt_enabled: Optional[bool] = None,
         allow_warnings: Optional[bool] = None
     ):
@@ -7110,7 +7105,6 @@ can, id, uses_git, is_example
         self.unset_deploy_secret = unset_deploy_secret
         self.pull_request_mode = pull_request_mode
         self.validation_required = validation_required
-        self.folders_enabled = folders_enabled
         self.git_release_mgmt_enabled = git_release_mgmt_enabled
         self.allow_warnings = allow_warnings
 
@@ -7801,9 +7795,13 @@ try:
 except ImportError:
     from typing import _ForwardRef as ForwardRef  # type: ignore
 
-structure_hook = functools.partial(sr.structure_hook, globals(), sr.converter31)
+structure_hook = functools.partial(sr.forward_ref_structure_hook, globals(), sr.converter31)
 sr.converter31.register_structure_hook(
     ForwardRef("AccessToken"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
+    ForwardRef("Align"),  # type: ignore
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(
@@ -7820,6 +7818,10 @@ sr.converter31.register_structure_hook(
 )
 sr.converter31.register_structure_hook(
     ForwardRef("BackupConfiguration"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
+    ForwardRef("Category"),  # type: ignore
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(
@@ -8035,6 +8037,10 @@ sr.converter31.register_structure_hook(
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(
+    ForwardRef("DependencyStatus"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
     ForwardRef("Dialect"),  # type: ignore
     structure_hook,  # type:ignore
 )
@@ -8071,11 +8077,23 @@ sr.converter31.register_structure_hook(
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(
+    ForwardRef("FillStyle"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
     ForwardRef("Folder"),  # type: ignore
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(
     ForwardRef("FolderBase"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
+    ForwardRef("Format"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
+    ForwardRef("GitApplicationServerHttpScheme"),  # type: ignore
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(
@@ -8323,6 +8341,10 @@ sr.converter31.register_structure_hook(
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(
+    ForwardRef("Name"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
     ForwardRef("OIDCConfig"),  # type: ignore
     structure_hook,  # type:ignore
 )
@@ -8355,6 +8377,10 @@ sr.converter31.register_structure_hook(
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(
+    ForwardRef("PermissionType"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
     ForwardRef("Project"),  # type: ignore
     structure_hook,  # type:ignore
 )
@@ -8379,6 +8405,10 @@ sr.converter31.register_structure_hook(
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(
+    ForwardRef("PullRequestMode"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
     ForwardRef("Query"),  # type: ignore
     structure_hook,  # type:ignore
 )
@@ -8392,6 +8422,10 @@ sr.converter31.register_structure_hook(
 )
 sr.converter31.register_structure_hook(
     ForwardRef("RepositoryCredential"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
+    ForwardRef("ResultFormat"),  # type: ignore
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(
@@ -8475,6 +8509,26 @@ sr.converter31.register_structure_hook(
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(
+    ForwardRef("SupportedActionTypes"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
+    ForwardRef("SupportedDownloadSettings"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
+    ForwardRef("SupportedFormats"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
+    ForwardRef("SupportedFormattings"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
+    ForwardRef("SupportedVisualizationFormattings"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
     ForwardRef("Theme"),  # type: ignore
     structure_hook,  # type:ignore
 )
@@ -8503,6 +8557,10 @@ sr.converter31.register_structure_hook(
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(
+    ForwardRef("UserAttributeFilterTypes"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
     ForwardRef("UserAttributeGroupValue"),  # type: ignore
     structure_hook,  # type:ignore
 )
@@ -8528,6 +8586,10 @@ sr.converter31.register_structure_hook(
 )
 sr.converter31.register_structure_hook(
     ForwardRef("ValidationErrorDetail"),  # type: ignore
+    structure_hook,  # type:ignore
+)
+sr.converter31.register_structure_hook(
+    ForwardRef("WeekStartDay"),  # type: ignore
     structure_hook,  # type:ignore
 )
 sr.converter31.register_structure_hook(

@@ -9,6 +9,7 @@ from PIL import Image  # type: ignore
 
 from looker_sdk.sdk.api31 import methods as mtds
 from looker_sdk.sdk.api31 import models as ml
+from looker_sdk.rtl import serialize as sr
 
 
 @pytest.fixture(scope="module")
@@ -499,6 +500,18 @@ def test_crud_dashboard(sdk: mtds.Looker31SDK, queries_system_activity, dashboar
                 assert tile.title == t.get("title")
                 assert tile.type == t.get("type")
 
+class TestEnumTypes:
+    def test_it_serializes_and_deserializes(self):
+        task = ml.CreateQueryTask(
+            query_id=1,
+            result_format=ml.ResultFormat.inline_json,
+            dashboard_id='1',
+            source='local'
+        )
+        json_ = sr.serialize(task)
+        actual = sr.deserialize31(data=json_, structure=ml.CreateQueryTask)
+        assert isinstance(actual, ml.CreateQueryTask)
+        assert actual == task
 
 def get_query_id(
     qhash: Dict[Union[str, int], ml.Query], id: Union[str, int]

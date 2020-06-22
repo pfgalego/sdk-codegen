@@ -86,12 +86,13 @@ class WriteChildModel(ml.Model):
 
 
 converter = cattr.Converter()
-structure_hook = functools.partial(sr.structure_hook, globals(), converter)
+structure_hook = functools.partial(sr.forward_ref_structure_hook, globals(), converter)
+reserved_kw_structure_hook = functools.partial(sr.reserved_kw_structure_hook, converter)
 converter.register_structure_hook(ForwardRef("Model"), structure_hook)
 converter.register_structure_hook(ForwardRef("ChildModel"), structure_hook)
 converter.register_structure_hook(ForwardRef("WriteModel"), structure_hook)
 converter.register_structure_hook(ForwardRef("WriteChildModel"), structure_hook)
-converter.register_structure_hook(Model, structure_hook)
+converter.register_structure_hook(Model, reserved_kw_structure_hook)
 
 MODEL_DATA = {
     "id": 1,

@@ -461,16 +461,16 @@ ${this.hooks.join('\n')}
       if (this.methodInputModelTypes.has(type)) {
         attrsArgs += ', init=False'
       }
+    }
 
-      const forwardRef = `ForwardRef("${type.name}")`
+    const forwardRef = `ForwardRef("${type.name}")`
+    this.hooks.push(
+      `sr.converter${this.apiRef}.register_structure_hook(\n${bump}${forwardRef},  # type: ignore\n${bump}${this.structureHook}  # type:ignore\n)`
+    )
+    if (usesReservedPythonKeyword) {
       this.hooks.push(
-        `sr.converter${this.apiRef}.register_structure_hook(\n${bump}${forwardRef},  # type: ignore\n${bump}${this.structureHook}  # type:ignore\n)`
+        `sr.converter${this.apiRef}.register_structure_hook(\n${bump}${type.name},  # type: ignore\n${bump}${this.structureHook}  # type:ignore\n)`
       )
-      if (usesReservedPythonKeyword) {
-        this.hooks.push(
-          `sr.converter${this.apiRef}.register_structure_hook(\n${bump}${type.name},  # type: ignore\n${bump}${this.structureHook}  # type:ignore\n)`
-        )
-      }
     }
 
     let result =

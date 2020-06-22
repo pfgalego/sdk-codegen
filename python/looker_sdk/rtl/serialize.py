@@ -23,6 +23,7 @@
 """Deserialize API response into models
 """
 import datetime
+import enum
 import functools
 import json
 import keyword
@@ -96,7 +97,14 @@ def serialize(api_model: TModelOrSequence) -> bytes:
     return json.dumps(data).encode("utf-8")  # type: ignore
 
 
-def structure_hook(context, converter, data, type_):
+def reserved_kw_structure_hook(converter, data, type):
+    for reserved in keyword.kwlist:
+        if reserved in data and isinstance(data, dict):
+            data[f"{reserved}_"] = data.pop(reserved)
+    return converter.structure(data, type)
+
+
+def forward_ref_structure_hook(context, converter, data, forward_ref):
     """cattr structure hook used in generated models.
 
     - Map reserved words in json keys to approriate (safe) names in model.
@@ -105,12 +113,8 @@ def structure_hook(context, converter, data, type_):
        partial func to register the hook. Once the issue is resolved we can
        remove "context" and the partial.
     """
-    for reserved in keyword.kwlist:
-        if reserved in data:
-            data[f"{reserved}_"] = data.pop(reserved)
-    if isinstance(type_, ForwardRef):
-        type_ = eval(type_.__forward_arg__, context, locals())
-    instance = converter.structure_attrs_fromdict(data, type_)
+    actual_type = eval(forward_ref.__forward_arg__, context, locals())
+    instance = converter.structure(data, actual_type)
     return instance
 
 
