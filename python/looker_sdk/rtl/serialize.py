@@ -29,7 +29,6 @@ import json
 import keyword
 import sys
 
-# ignoring "Module 'typing' has no attribute 'ForwardRef'"
 from typing import (  # type: ignore
     Callable,
     MutableMapping,
@@ -37,11 +36,6 @@ from typing import (  # type: ignore
     Type,
     Union,
 )
-
-try:
-    from typing import ForwardRef  # type: ignore
-except ImportError:
-    from typing import _ForwardRef as ForwardRef  # type: ignore
 
 import cattr
 
@@ -97,11 +91,29 @@ def serialize(api_model: TModelOrSequence) -> bytes:
     return json.dumps(data).encode("utf-8")  # type: ignore
 
 
-def reserved_kw_structure_hook(converter, data, type):
+def _fix_kw_data(data):
     for reserved in keyword.kwlist:
         if reserved in data and isinstance(data, dict):
             data[f"{reserved}_"] = data.pop(reserved)
-    return converter.structure(data, type)
+    return data
+
+
+def _structure(converter, data, type_):
+    """Determine which structure strategy to use.
+    """
+    if issubclass(type_, enum.Enum):
+        instance = converter.structure(data, type_)
+    elif issubclass(type_, model.Model):
+        # cannot use converter.structure - recursion error
+        instance = converter.structure_attrs_fromdict(data, type_)
+    else:
+        raise DeserializeError(f"Unknown type to deserialize: {type_}")
+    return instance
+
+
+def reserved_kw_structure_hook(converter, data, type_):
+    data = _fix_kw_data(data)
+    return _structure(converter, data, type_)
 
 
 def forward_ref_structure_hook(context, converter, data, forward_ref):
@@ -113,9 +125,9 @@ def forward_ref_structure_hook(context, converter, data, forward_ref):
        partial func to register the hook. Once the issue is resolved we can
        remove "context" and the partial.
     """
+    kw_fixed_data = _fix_kw_data(data)
     actual_type = eval(forward_ref.__forward_arg__, context, locals())
-    instance = converter.structure(data, actual_type)
-    return instance
+    return _structure(converter, data, actual_type)
 
 
 def unstructure_hook(api_model):
@@ -151,6 +163,18 @@ else:
         return datetime.datetime.strptime(d, "%Y-%m-%dT%H:%M:%S.%f%z")
 
 
+_reserved_kw_structure_hook31 = functools.partial(  # type: ignore
+    reserved_kw_structure_hook, converter31  # type: ignore
+)
+_reserved_kw_structure_hook40 = functools.partial(  # type: ignore
+    reserved_kw_structure_hook, converter40  # type: ignore
+)
+converter31.register_structure_hook(
+    model.Model, _reserved_kw_structure_hook31  # type: ignore
+)
+converter40.register_structure_hook(
+    model.Model, _reserved_kw_structure_hook40  # type: ignore
+)
 converter31.register_structure_hook(datetime.datetime, datetime_structure_hook)
 converter40.register_structure_hook(datetime.datetime, datetime_structure_hook)
 cattr.register_unstructure_hook(model.Model, unstructure_hook)  # type: ignore

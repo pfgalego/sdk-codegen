@@ -160,7 +160,7 @@ except ImportError:
 
 ${
   this.structureHook
-} = functools.partial(sr.structure_hook, globals(), sr.converter${this.apiRef})
+} = functools.partial(sr.forward_ref_structure_hook, globals(), sr.converter${this.apiRef})
 ${this.hooks.join('\n')}
 `
 

@@ -89,7 +89,7 @@ try:
 except ImportError:
     from typing import _ForwardRef as ForwardRef  # type: ignore
 
-structure_hook = functools.partial(sr.structure_hook, globals(), sr.converter)
+structure_hook = functools.partial(sr.forward_ref_structure_hook, globals(), sr.converter)
 
 `)
     })

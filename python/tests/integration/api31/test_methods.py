@@ -354,6 +354,20 @@ def test_search_look_and_run(sdk: mtds.Looker31SDK):
     assert "Dashboard ID" in actual
 
 
+def test_enum(sdk: mtds.Looker31SDK):
+    query = ml.WriteQuery(
+        model="system__activity",
+        view="dashboard",
+        fields=["dashboard.id", "dashboard.title", "dashboard.count"],
+    )
+    query_id = sdk.create_query(query).id
+    task = ml.WriteCreateQueryTask(
+        query_id=query_id, source="test", result_format=ml.ResultFormat.csv
+    )
+    created = sdk.create_query_task(task)
+    assert ml.ResultFormat.csv.value == created.result_format
+
+
 def create_query_request(q, limit: Optional[str] = None) -> ml.WriteQuery:
     return ml.WriteQuery(
         model=q.get("model"),
@@ -500,18 +514,6 @@ def test_crud_dashboard(sdk: mtds.Looker31SDK, queries_system_activity, dashboar
                 assert tile.title == t.get("title")
                 assert tile.type == t.get("type")
 
-class TestEnumTypes:
-    def test_it_serializes_and_deserializes(self):
-        task = ml.CreateQueryTask(
-            query_id=1,
-            result_format=ml.ResultFormat.inline_json,
-            dashboard_id='1',
-            source='local'
-        )
-        json_ = sr.serialize(task)
-        actual = sr.deserialize31(data=json_, structure=ml.CreateQueryTask)
-        assert isinstance(actual, ml.CreateQueryTask)
-        assert actual == task
 
 def get_query_id(
     qhash: Dict[Union[str, int], ml.Query], id: Union[str, int]
