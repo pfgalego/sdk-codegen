@@ -6279,6 +6279,8 @@ class Looker31SDK(api_methods.APIMethods):
         # Exclude items that exist only in personal spaces other than the users
         curate: Optional[bool] = None,
         # Requested fields.
+        model: Optional[str] = None,
+        # Requested fields.
         fields: Optional[str] = None,
         # Requested page.
         page: Optional[int] = None,
@@ -6309,6 +6311,7 @@ class Looker31SDK(api_methods.APIMethods):
                 "deleted": deleted,
                 "query_id": query_id,
                 "curate": curate,
+                "model": model,
                 "fields": fields,
                 "page": page,
                 "per_page": per_page,
