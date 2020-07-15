@@ -90,11 +90,13 @@ deserialize40 = functools.partial(deserialize, converter=converter40)
 
 
 def serialize(api_model: TModelOrSequence) -> bytes:
+    def myconverter(o):
+        if isinstance(o, datetime.datetime):
+            return o.__str__()
     """Translate api_model into formdata encoded json bytes
     """
     data = cattr.unstructure(api_model)  # type: ignore
-    return json.dumps(data).encode("utf-8")  # type: ignore
-
+    return json.dumps(data,default = myconverter).encode("utf-8")  # type: ignore
 
 def structure_hook(context, converter, data, type_):
     """cattr structure hook used in generated models.
